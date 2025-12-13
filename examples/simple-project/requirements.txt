@@ -1,0 +1,16 @@
+# Python dependencies for simple project
+
+# Core dependencies
+requests>=2.28.0
+python-dotenv>=0.19.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+black>=22.0.0
+flake8>=5.0.0
+mypy>=0.991
+
+# Optional dependencies for enhanced functionality
+click>=8.0.0  # CLI framework
+pydantic>=1.10.0  # Data validation
