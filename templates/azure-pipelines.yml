@@ -1,0 +1,385 @@
+# Azure Pipelines CI/CD Template
+# This template provides a comprehensive CI/CD pipeline for multiple languages and platforms
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - feature/*
+      - hotfix/*
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - '**/*.md'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+      - '**/*.md'
+
+# Variables
+variables:
+  - name: buildConfiguration
+    value: 'Release'
+  - name: vmImageName
+    value: 'ubuntu-latest'
+  - name: pythonVersion
+    value: '3.9'
+  - name: nodeVersion
+    value: '16.x'
+  - name: javaVersion
+    value: '11'
+
+# Stages
+stages:
+  # Build Stage
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+      # Python Build
+      - job: PythonBuild
+        displayName: 'Python Build and Test'
+        condition: and(succeeded(), or(eq(variables['Build.Reason'], 'PullRequest'), contains(variables['Build.SourceBranch'], 'python')))
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: UsePythonVersion@0
+            displayName: 'Use Python $(pythonVersion)'
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: 'Install Python dependencies'
+            condition: exists('requirements.txt')
+
+          - script: |
+              pip install pytest pytest-cov pytest-xvfb
+              python -m pytest tests/ --junitxml=junit/test-results.xml --cov=src --cov-report=xml
+            displayName: 'Run Python tests'
+            condition: exists('tests/')
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Python test results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: 'junit/test-results.xml'
+              testRunTitle: 'Python Tests'
+              failTaskOnFailedTests: true
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish Python coverage results'
+            condition: succeededOrFailed()
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: 'coverage.xml'
+
+      # Node.js Build
+      - job: NodeBuild
+        displayName: 'Node.js Build and Test'
+        condition: and(succeeded(), or(eq(variables['Build.Reason'], 'PullRequest'), exists('package.json')))
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: NodeTool@0
+            displayName: 'Use Node.js $(nodeVersion)'
+            inputs:
+              versionSpec: '$(nodeVersion)'
+
+          - script: |
+              npm ci
+            displayName: 'Install Node.js dependencies'
+            condition: exists('package-lock.json')
+
+          - script: |
+              npm install
+            displayName: 'Install Node.js dependencies (fallback)'
+            condition: and(not(exists('package-lock.json')), exists('package.json'))
+
+          - script: |
+              npm run build
+            displayName: 'Build Node.js application'
+            condition: exists('package.json')
+
+          - script: |
+              npm run test -- --watchAll=false --coverage
+            displayName: 'Run Node.js tests'
+            condition: exists('package.json')
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Node.js test results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: 'junit.xml'
+              testRunTitle: 'Node.js Tests'
+              failTaskOnFailedTests: true
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish Node.js coverage results'
+            condition: succeededOrFailed()
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: 'coverage/cobertura-coverage.xml'
+
+      # .NET Build
+      - job: DotNetBuild
+        displayName: '.NET Build and Test'
+        condition: and(succeeded(), or(eq(variables['Build.Reason'], 'PullRequest'), exists('*.sln'), exists('*.csproj')))
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Use .NET SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '6.x'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore .NET packages'
+            inputs:
+              command: 'restore'
+              projects: '**/*.csproj'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build .NET application'
+            inputs:
+              command: 'build'
+              projects: '**/*.csproj'
+              arguments: '--configuration $(buildConfiguration)'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Run .NET tests'
+            inputs:
+              command: 'test'
+              projects: '**/*Tests/*.csproj'
+              arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish .NET coverage results'
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+
+      # Java Build
+      - job: JavaBuild
+        displayName: 'Java Build and Test'
+        condition: and(succeeded(), or(eq(variables['Build.Reason'], 'PullRequest'), exists('pom.xml'), exists('build.gradle')))
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: JavaToolInstaller@0
+            displayName: 'Use Java $(javaVersion)'
+            inputs:
+              versionSpec: '$(javaVersion)'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+
+          # Maven Build
+          - task: Maven@3
+            displayName: 'Maven Build and Test'
+            condition: exists('pom.xml')
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean compile test'
+              options: '-B'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              codeCoverageToolOption: 'JaCoCo'
+
+          # Gradle Build
+          - task: Gradle@2
+            displayName: 'Gradle Build and Test'
+            condition: exists('build.gradle')
+            inputs:
+              workingDirectory: ''
+              gradleWrapperFile: 'gradlew'
+              gradleOptions: '-Xmx3072m'
+              tasks: 'build test'
+              publishJUnitResults: true
+              testResultsFiles: '**/TEST-*.xml'
+              codeCoverageToolOption: 'JaCoCo'
+
+  # Security and Quality Stage
+  - stage: SecurityAndQuality
+    displayName: 'Security and Code Quality'
+    dependsOn: Build
+    condition: succeeded('Build')
+    jobs:
+      - job: CodeAnalysis
+        displayName: 'Code Analysis and Security Scan'
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          # SonarCloud Analysis
+          - task: SonarCloudPrepare@1
+            displayName: 'Prepare SonarCloud analysis'
+            inputs:
+              SonarCloud: 'SonarCloud'
+              organization: '$(System.TeamProject)'
+              scannerMode: 'CLI'
+              configMode: 'manual'
+              cliProjectKey: '$(Build.Repository.Name)'
+              cliProjectName: '$(Build.Repository.Name)'
+
+          - task: SonarCloudAnalyze@1
+            displayName: 'Run SonarCloud analysis'
+
+          - task: SonarCloudPublish@1
+            displayName: 'Publish SonarCloud results'
+
+          # OWASP Dependency Check
+          - script: |
+              curl -L https://github.com/jeremylong/DependencyCheck/releases/download/v7.4.4/dependency-check-7.4.4-release.zip -o dependency-check.zip
+              unzip dependency-check.zip
+              ./dependency-check/bin/dependency-check.sh --project "$(Build.Repository.Name)" --scan . --format ALL --out ./dependency-check-report
+            displayName: 'OWASP Dependency Check'
+            continueOnError: true
+
+          - task: PublishHtmlReport@1
+            displayName: 'Publish Dependency Check Report'
+            condition: always()
+            inputs:
+              reportDir: 'dependency-check-report'
+              tabName: 'OWASP Dependency Check'
+
+  # Package and Deploy Stage
+  - stage: Package
+    displayName: 'Package Applications'
+    dependsOn: SecurityAndQuality
+    condition: and(succeeded('SecurityAndQuality'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: CreateArtifacts
+        displayName: 'Create Deployment Artifacts'
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          # Docker Build and Push
+          - task: Docker@2
+            displayName: 'Build and push Docker image'
+            condition: exists('Dockerfile')
+            inputs:
+              containerRegistry: 'Docker Registry Connection'
+              repository: '$(Build.Repository.Name)'
+              command: 'buildAndPush'
+              Dockerfile: '**/Dockerfile'
+              tags: |
+                $(Build.BuildId)
+                latest
+
+          # Create ZIP Package
+          - task: ArchiveFiles@2
+            displayName: 'Create ZIP package'
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.Repository.Name)-$(Build.BuildId).zip'
+              replaceExistingArchive: true
+              excludePaths: |
+                .git/**
+                .gitignore
+                README.md
+                **/*.md
+                .azure-pipelines.yml
+                tests/**
+                **/__pycache__/**
+                **/node_modules/**
+                **/bin/Debug/**
+                **/obj/**
+
+          # Publish Artifacts
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish build artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+
+  # Deployment Stages
+  - stage: DeployDev
+    displayName: 'Deploy to Development'
+    dependsOn: Package
+    condition: and(succeeded('Package'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+    variables:
+      - group: 'Development Environment'
+    jobs:
+      - deployment: DeployToDev
+        displayName: 'Deploy to Development Environment'
+        environment: 'Development'
+        pool:
+          vmImage: $(vmImageName)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy to Azure Web App'
+                  inputs:
+                    azureSubscription: 'Azure Service Connection'
+                    appType: 'webAppLinux'
+                    appName: '$(webAppName)'
+                    package: '$(Pipeline.Workspace)/drop/*.zip'
+
+  - stage: DeployProd
+    displayName: 'Deploy to Production'
+    dependsOn: Package
+    condition: and(succeeded('Package'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      - group: 'Production Environment'
+    jobs:
+      - deployment: DeployToProd
+        displayName: 'Deploy to Production Environment'
+        environment: 'Production'
+        pool:
+          vmImage: $(vmImageName)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy to Azure Web App'
+                  inputs:
+                    azureSubscription: 'Azure Service Connection'
+                    appType: 'webAppLinux'
+                    appName: '$(webAppName)'
+                    package: '$(Pipeline.Workspace)/drop/*.zip'
+
+                # Post-deployment verification
+                - script: |
+                    curl -f https://$(webAppName).azurewebsites.net/health || exit 1
+                  displayName: 'Health Check'
+                  continueOnError: false
+
+# Post-pipeline notifications
+- stage: Notifications
+  displayName: 'Send Notifications'
+  dependsOn: 
+    - DeployDev
+    - DeployProd
+  condition: always()
+  jobs:
+    - job: SendNotifications
+      displayName: 'Send Build Notifications'
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+        - script: |
+            echo "Pipeline completed with status: $(Agent.JobStatus)"
+            # Add your notification logic here (Slack, Teams, Email, etc.)
+          displayName: 'Send Completion Notification'

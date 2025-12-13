@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure DevOps Demo - Git & GitHub Integration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #0078d4, #106ebe);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #0078d4;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: #0078d4;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card ul {
+            list-style-type: none;
+        }
+
+        .feature-card li {
+            padding: 0.3rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .feature-card li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .commands {
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 2rem;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .commands h3 {
+            color: #00ff00;
+            margin-bottom: 1rem;
+        }
+
+        .command-line {
+            margin: 0.5rem 0;
+            padding: 0.3rem;
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 3px solid #00ff00;
+            padding-left: 1rem;
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: #0078d4;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0.5rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #106ebe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Azure DevOps Integration Demo</h1>
+            <p>Git, GitHub & Azure DevOps Complete Workflow</p>
+            <div><span class="status-indicator"></span>System Status: Online</div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <h3>🔧 Git Features</h3>
+                <ul>
+                    <li>Version Control Management</li>
+                    <li>Branch Strategy Implementation</li>
+                    <li>Merge Conflict Resolution</li>
+                    <li>Git Hooks and Automation</li>
+                    <li>Advanced Git Workflows</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>🏢 Azure DevOps</h3>
+                <ul>
+                    <li>Azure Repos Integration</li>
+                    <li>Pull Request Management</li>
+                    <li>Branch Policies</li>
+                    <li>Work Item Tracking</li>
+                    <li>CI/CD Pipelines</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>🐙 GitHub Integration</h3>
+                <ul>
+                    <li>Repository Synchronization</li>
+                    <li>Issue Management</li>
+                    <li>GitHub Actions</li>
+                    <li>Collaborative Development</li>
+                    <li>Code Review Processes</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>🎯 Visual Studio</h3>
+                <ul>
+                    <li>Integrated Git Support</li>
+                    <li>Azure DevOps Extension</li>
+                    <li>Team Explorer</li>
+                    <li>Debugging and Testing</li>
+                    <li>Deployment Tools</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="commands">
+            <h3>📟 Quick Commands</h3>
+            <div class="command-line">$ git clone https://dev.azure.com/org/project/_git/repo</div>
+            <div class="command-line">$ git checkout -b feature/new-feature</div>
+            <div class="command-line">$ git add . && git commit -m "Add new feature"</div>
+            <div class="command-line">$ git push -u origin feature/new-feature</div>
+            <div class="command-line">$ gh pr create --title "New Feature" --body "Description"</div>
+        </div>
+
+        <div class="footer">
+            <h3>🎓 Learning Resources</h3>
+            <a href="#" class="btn">Git Documentation</a>
+            <a href="#" class="btn">Azure DevOps Guide</a>
+            <a href="#" class="btn">GitHub Training</a>
+            <a href="#" class="btn">Visual Studio Tips</a>
+            <br><br>
+            <p>
+                <strong>Version:</strong> <span id="version">1.0.0</span> |
+                <strong>Last Updated:</strong> <span id="timestamp"></span>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Simulate version loading from config
+        fetch('./config.json')
+            .then(response => response.json())
+            .then(data => {
+                if (data.version) {
+                    document.getElementById('version').textContent = data.version;
+                }
+            })
+            .catch(error => {
+                console.log('Config file not found, using default version');
+            });
+
+        // Add interactive features
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = this.style.transform === 'scale(1.05)' ? 'scale(1)' : 'scale(1.05)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+
+        // Console welcome message
+        console.log(`
+🚀 Azure DevOps Demo Application
+================================
+Welcome to the interactive demo!
+Check out the repository structure and run the Python app:
+python src/app.py
+
+For more information, see README.md
+        `);
+    </script>
+</body>
+</html>

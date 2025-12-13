@@ -1,0 +1,37 @@
+{
+  "name": "azure-devops-demo",
+  "version": "1.0.0",
+  "description": "Sample application for Azure DevOps Git workflows",
+  "environment": "development",
+  "debug": true,
+  "author": "Atul Kamble",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atulkamble/Azure-Repos.git"
+  },
+  "azure_devops": {
+    "organization": "your-organization",
+    "project": "your-project",
+    "repo": "Azure-Repos"
+  },
+  "features": [
+    "git-integration",
+    "azure-repos",
+    "github-sync",
+    "visual-studio-support",
+    "automated-workflows"
+  ],
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "data/app.db"
+  },
+  "api": {
+    "host": "localhost",
+    "port": 8080,
+    "version": "v1"
+  }
+}
