@@ -1,3 +1,228 @@
+## 🔵 Azure Repos – **Practice Guide & Essential Commands** (Hands-On + Interview Ready)
+
+Azure Repos is part of **Azure DevOps** and provides **Git-based source control** for teams building CI/CD pipelines and cloud-native apps.
+
+![Image](https://learn.microsoft.com/en-us/azure/devops/repos/git/media/gitworkflow.png?view=azure-devops)
+
+![Image](https://learn.microsoft.com/en-us/azure/devops/repos/git/media/repos-navigation/repos-branches.png?view=azure-devops)
+
+![Image](https://praveenkumarsreeram.com/wp-content/uploads/2022/10/0_azure-devops-e28093-tips-and-tricks-e28093-13-how-to-merge-two-branches-using-pull-request-approval-workflow-branches.png)
+
+![Image](https://www.gitkraken.com/wp-content/uploads/2021/04/azure-devops-integration-pull-request-1024x911.png)
+
+---
+
+## 🔹 1. Azure Repos Basics (Quick Recap)
+
+* Supports **Git** and **TFVC** (Git is recommended)
+* Used with **Azure Pipelines**, **Boards**, **Artifacts**
+* Enables **branching, PRs, policies, reviews**
+
+---
+
+## 🔹 2. Create Azure Repos (Practice)
+
+### 🌐 Using Azure DevOps Portal
+
+1. Go to [https://dev.azure.com](https://dev.azure.com)
+2. Create **Organization**
+3. Create **Project**
+4. Repos → **Initialize Git Repo**
+
+### 💻 Clone Repository (Local)
+
+```bash
+git clone https://dev.azure.com/org-name/project-name/_git/repo-name
+cd repo-name
+```
+
+---
+
+## 🔹 3. Daily Git Commands (Azure Repos)
+
+### 📌 Repository Setup
+
+```bash
+git init
+git remote add origin <repo-url>
+git remote -v
+```
+
+### 📌 Add & Commit
+
+```bash
+git status
+git add .
+git commit -m "Initial commit"
+```
+
+### 📌 Push & Pull
+
+```bash
+git push origin main
+git pull origin main
+```
+
+---
+
+## 🔹 4. Branching (Most Used in Azure Repos)
+
+### 🔀 Create & Switch Branch
+
+```bash
+git branch dev
+git checkout dev
+# OR
+git checkout -b feature/login
+```
+
+### 🔁 Push Branch to Azure Repos
+
+```bash
+git push origin dev
+git push origin feature/login
+```
+
+### 📋 List & Delete Branch
+
+```bash
+git branch
+git branch -a
+git branch -d feature/login
+```
+
+---
+
+## 🔹 5. Pull Requests (PR) – Core Practice
+
+### 🔁 Typical Flow
+
+1. Work on `feature/*` branch
+2. Push to Azure Repos
+3. Create **Pull Request → dev/main**
+4. Review → Approve → Merge
+
+### 🔧 PR Merge Types
+
+* Merge commit
+* Squash merge
+* Rebase & fast-forward
+
+---
+
+## 🔹 6. Merge & Rebase Commands
+
+### 🔀 Merge
+
+```bash
+git checkout main
+git merge dev
+```
+
+### 🔄 Rebase (Clean History)
+
+```bash
+git checkout feature/login
+git rebase main
+```
+
+---
+
+## 🔹 7. Resolve Merge Conflicts (Practice)
+
+```bash
+git status
+# Fix conflict in file
+git add .
+git commit -m "Resolved merge conflict"
+```
+
+---
+
+## 🔹 8. Undo & Rollback (Very Important)
+
+### 🔙 Undo Last Commit (Local)
+
+```bash
+git reset --soft HEAD~1
+```
+
+### ❌ Discard File Changes
+
+```bash
+git checkout -- filename
+```
+
+### 🧹 Revert Commit (Safe for Shared Repo)
+
+```bash
+git revert <commit-id>
+```
+
+---
+
+## 🔹 9. Tags & Releases
+
+```bash
+git tag v1.0
+git push origin v1.0
+git tag
+```
+
+---
+
+## 🔹 10. Azure Repos Best Practices (Interview Gold ⭐)
+
+✅ Use **feature branches**
+✅ Enforce **PR policies** (reviewers, build validation)
+✅ Protect `main` branch
+✅ Use **meaningful commit messages**
+✅ Link PRs with **Azure Boards work items**
+✅ Enable **CI pipeline on PR**
+
+---
+
+## 🔹 11. Azure Repos + Azure Pipelines (Mini Practice)
+
+### 📄 azure-pipelines.yml
+
+```yaml
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo "Hello Azure Repos CI"
+```
+
+✔ Auto build on every push to `main`
+
+---
+
+## 🔹 12. Real-World Practice Tasks (Recommended)
+
+🔹 Create repo → push sample app
+🔹 Create `dev` + `feature` branches
+🔹 Raise PR with reviewer
+🔹 Enforce build validation
+🔹 Resolve merge conflict
+🔹 Tag a release (`v1.0`)
+
+---
+
+## 🔹 13. Azure Repos vs GitHub (Quick)
+
+| Feature            | Azure Repos | GitHub         |
+| ------------------ | ----------- | -------------- |
+| Enterprise         | ⭐⭐⭐⭐⭐       | ⭐⭐⭐⭐           |
+| Boards Integration | Native      | Limited        |
+| Pipelines          | Native      | GitHub Actions |
+| Repo Hosting       | Yes         | Yes            |
+
+---
+
 # 🚀 **Git, GitHub & Azure DevOps - Complete Guide**
 
 A comprehensive guide covering Git version control, GitHub collaboration, and Azure DevOps workflows with practical examples, scripts, and best practices.
